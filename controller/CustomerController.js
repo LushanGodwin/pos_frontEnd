@@ -14,6 +14,8 @@ const clear = () => {
     $("#customerAddress").val("");
     $("#contactNo").val("");
 }
+
+console.log("hi");
 function populateCustomerTable(){
     customerApi.getAllCustomer()
         .then((responseText) => {
