@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('empty-cashier-work-place.jpg') center/cover no-repeat;
+      font-family: 'Arial', sans-serif;
+      color: white;
+    }
+
+    h2{
+      font-family: 'Poppins', sans-serif;
+      position: absolute;
+      bottom: 80%;
+      font-size: 3em;
+    }
+
+    #login-form {
+      background: rgba(0, 0, 0, 0.2); /* Glass effect */
+      backdrop-filter: blur(3px); /* Glass effect */
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 335px;
+      width: 100%;
+    }
+
+    #login-form label {
+      display: block;
+      margin-bottom: 8px;
+      position: relative;
+      left: -103px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #login-form input {
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      border-radius: 30px;
+      border: none;
+      font-size: 17px;
+    }
+
+    #login-form button {
+      background-color: #00b4d8;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      width: 150px;
+      font-size: 18px;
+    }
+
+    #login-form button:hover {
+      background-color: gray;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 58%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    function togglePassword() {
+      var passwordInput = document.getElementById("password");
+      var passwordToggle = document.getElementById("password-toggle");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        passwordToggle.innerHTML = "👁️";
+      } else {
+        passwordInput.type = "password";
+        passwordToggle.innerHTML = "🔒";
+      }
+    }
+
+    function login(event) {
+      event.preventDefault(); // Prevents the default form submission behavior
+
+      // Get the username and password values
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      if (username === "admin" && password === "123") {
+        window.location.href = "index.html";
+      } else {
+        alert("Invalid username or password. Please try again.");
+
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+      }
+    }
+  </script>
+</head>
+<body>
+<h2>WELCOME POINT OF SELLING SYSTEM</h2>
+<div id="login-form">
+  <h1>Login</h1>
+  <form onsubmit="login(event)">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <div class="password-container">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <span id="password-toggle" class="password-toggle" onclick="togglePassword()">🔒</span>
+    </div>
+
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+</body>
+</html>
