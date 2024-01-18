@@ -1,5 +1,5 @@
 import {CustomerModel} from "../model/CustomerModel.js";
-import {CustomerAPI} from "../db/customerAPI.js";
+import {CustomerAPI} from "../api/customerAPI.js";
 //import {setCustomerIds} from "./OrderController.js";
 
 
@@ -8,6 +8,10 @@ const contact_regex = new RegExp("^(?:0|94|\\+94|0094)?(?:(11|21|23|24|25|26|27|
 
 let customerApi = new CustomerAPI();
 
+let customerId = $("#customerId");
+let customerName = $("#customerName");
+let customerAddress = $("#customerAddress");
+let customerContact = $("#contactNo");
 const clear = () => {
     $("#customerId").val("");
     $("#customerName").val("");
@@ -15,7 +19,7 @@ const clear = () => {
     $("#contactNo").val("");
 }
 
-console.log("hi");
+
 function populateCustomerTable(){
     customerApi.getAllCustomer()
         .then((responseText) => {
@@ -113,7 +117,7 @@ $('#customer_page').eq(0).on('click',function(){
 });
 
 //update
-/*$("#customerButton>button[type='button']").eq(1).on("click", () =>{
+$("#customerButton>button[type='button']").eq(1).on("click", () =>{
     let customer_id = $("#customerId").val();
     let customer_name = $("#customerName").val();
     let customer_address = $("#customerAddress").val();
@@ -126,28 +130,23 @@ $('#customer_page').eq(0).on('click',function(){
 
             let customer_obj = new CustomerModel(customer_id, customer_name, customer_address, customer_contact);
 
-            let index = customerApi.findIndex(item => item.customer_id === customer_id);
+            //let index = customerApi.findIndex(item => item.customer_id === customer_id);
 
-            if (index >= 0) {
-                Swal.fire({
-                    title: 'Do you want to update the customer?',
-                    showDenyButton: true,
-                    confirmButtonText: 'Update',
-                    denyButtonText: `Don't update`,
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        customerApi[index] = customer_obj;
+            customerApi.updateCustomer(customer_obj)
+                .then((responseText) => {
+                    Swal.fire(
+                        responseText,
+                        'Successful',
+                        'success'
+                    )
+                    populateCustomerTable();
+                    clear();
 
-                        loadStudentData();
-
-                        clear();
-
-                        Swal.fire('Customer Updated!', '', 'success');
-
-                    } else if (result.isDenied) {
-                        Swal.fire('Changes are not updated!', '', 'info')
-                    }
+                })
+                .catch((error) => {
+                    showError('Update Unsucessfull', error);
                 });
+                clear();
 
 
             } else {
@@ -156,44 +155,49 @@ $('#customer_page').eq(0).on('click',function(){
                     title: 'Customer did not exists 😓',
                 });
             }
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Contact number is not valid! 😔',
-            });
-        }
+        }else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Contact number is not valid! 😔',
+        });
     }
 })
 
 //delete
 $("#customerButton>button[type='button']").eq(2).on("click", () =>{
-    let customer_id = $("#customerId").val();
+    let customerIdValue = $("#customerId").val();
 
-    if (validate(customer_id,'customer Id')){
+    if (validate(customerIdValue,'customer Id')){
 
-        let index = customerApi.findIndex(item => item.customer_id === customer_id);
+        //let index = customerApi.findIndex(item => item.customer_id === customer_id);
 
-        if (index >= 0) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    customerApi.splice(index, 1);
-
-                    loadStudentData();
-                    setCustomerIds();
-
-                    clear();
-
-                    Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
-                }
-            });
+        let customerIdValue = $("#customerId").val().trim();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Delete'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                customerApi.deleteCustomer(customerIdValue)
+                    .then((responseText) => {
+                        Swal.fire(
+                            responseText,
+                            'Successful',
+                            'success'
+                        )
+                        populateCustomerTable();
+                        clear();
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        showError('Customer delete Unsucessfull', error);
+                    });
+            }
+        });
 
 
         }else{
@@ -202,21 +206,34 @@ $("#customerButton>button[type='button']").eq(2).on("click", () =>{
                 title: 'Customer did not exists 😓',
             });
         }
-    }
-})*/
-$("#customer-tbl-body").on("click", "tr", function () {
-    row_index = $(this).index();
-
-    let customer_id = $(this).find(".customer_id").text();
-    let customer_name = $(this).find(".customer_name").text();
-    let customer_address = $(this).find(".customer_address").text();
-    let customer_contact = $(this).find(".customer_contact").text();
-
-    $("#customerId").val(customer_id);
-    $('#customerName').val(customer_name);
-    $('#customerAddress').val(customer_address);
-    $('#contactNo').val(customer_contact);
 })
+
+$("#customer-tbl-body").on("click", "tr", function () {
+    row_index = $(this).find('th').text();
+    console.log(row_index);
+    if (row_index) {
+        customerApi.getCustomer(row_index)
+            .then((responseText) => {
+                let customer = JSON.parse(responseText);
+                customerId.val(customer.customer_id);
+                customerName.val(customer.customer_name);
+                customerAddress.val(customer.customer_address);
+                customerContact.val(customer.customer_contact);
+            })
+            .catch((error) => {
+                console.log(error);
+                showError('Save Unsucessfull', error);
+            });
+    }
+})
+function showError(title, text) {
+    Swal.fire({
+        icon: 'error',
+        title: title,
+        text: text,
+        footer: '<a href="">Why do I have this issue?</a>'
+    });
+}
 
 function validate(value, field_name){
     if (!value){
@@ -229,6 +246,4 @@ function validate(value, field_name){
     return true;
 }
 
-const getCustomerIndex = function (customerId) {
-    return customerApi.findIndex(customer => customer.customer_id === customerId);
-}
+
